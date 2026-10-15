@@ -21,6 +21,8 @@ import AdminRoute from "../routes/AdminRoute";
 import AssignRider from "../pages/Dashboard/AssignRider/AssignRider";
 import RiderRoute from "../routes/RiderRoute";
 import PendingDelivery from "../pages/Dashboard/PendingDelivery/PendingDelivery";
+import CompletedDeliveries from "../pages/Dashboard/CompletedDeliveries/CompletedDeliveries";
+import MyEarnings from "../pages/Dashboard/MyEarnings/MyEarnings";
 // import AssignRider from "../pages/Dashboard/AssignRider/AssignRider";
 
 
@@ -102,6 +104,16 @@ export const router = createBrowserRouter([
       {
         path: 'pending-deliveries',
         element: <RiderRoute><PendingDelivery></PendingDelivery></RiderRoute>
+      },
+      {
+        path: 'completed-deliveries',
+        element: <RiderRoute><CompletedDeliveries></CompletedDeliveries></RiderRoute>
+
+      },
+      {
+        path: 'my-earnings',
+        element: <RiderRoute><MyEarnings></MyEarnings></RiderRoute>
+
       },
 
       // ! Admin Only routes

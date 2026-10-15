@@ -85,9 +85,9 @@ const BeARider = () => {
 
                 <input
                   type="text"
-                  value={user?.displayName || ""}
-                  readOnly
-                  className="input input-bordered w-full bg-base-200"
+                  // value={user?.displayName || ""}
+                  // readOnly
+                  className="input input-bordered w-full bg-base-200 text-white"
                 />
               </div>
 

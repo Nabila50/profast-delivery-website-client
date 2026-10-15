@@ -9,7 +9,13 @@ import {
   FiUserCheck,
   FiUsers,
 } from "react-icons/fi";
-import { FaMotorcycle, FaTruckLoading, FaUserShield } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaMoneyBillWave,
+  FaMotorcycle,
+  FaTruckLoading,
+  FaUserShield,
+} from "react-icons/fa";
 import useUserRole from "../hooks/useUserRole";
 
 const DashboardLayout = () => {
@@ -93,7 +99,7 @@ const DashboardLayout = () => {
           </li>
 
           {/* Riders Links */}
-          {!roleLoading && role === "rider" && 
+          {!roleLoading && role === "rider" && (
             <>
               <li>
                 <NavLink to="/dashboard/pending-deliveries">
@@ -101,8 +107,20 @@ const DashboardLayout = () => {
                   <span>Pending Deliveries</span>
                 </NavLink>
               </li>
+              <li>
+                <NavLink to="/dashboard/completed-deliveries">
+                  <FaCheckCircle />
+                  <span>Completed Deliveries</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/dashboard/my-earnings">
+                  <FaMoneyBillWave />
+                  <span>My Earnings</span>
+                </NavLink>
+              </li>
             </>
-          }
+          )}
 
           {/* admin Links */}
           {!roleLoading && role === "admin" && (

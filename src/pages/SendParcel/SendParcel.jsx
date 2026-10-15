@@ -5,6 +5,7 @@ import { useLoaderData, useNavigate } from "react-router";
 
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useTrackingLogger from "../../hooks/useTrackingLogger";
 
 const generateTrackingID = () => {
   const date = new Date();
@@ -26,7 +27,8 @@ const SendParcel = () => {
 
   const axiosSecure = useAxiosSecure();
   const serviceCenters = useLoaderData();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { logTracking } = useTrackingLogger();
   // extract unique regions
 
   const uniqueRegions = [...new Set(serviceCenters.map((w) => w.region))];
@@ -204,6 +206,7 @@ const SendParcel = () => {
       // --------------------------------
 
       if (result.isConfirmed) {
+        const tracking_id = generateTrackingID();
         const parcelData = {
           ...data,
           cost: totalCost,
@@ -211,7 +214,7 @@ const SendParcel = () => {
           payment_status: "unpaid",
           delivery_status: "not_collected",
           creation_date: new Date().toISOString(),
-          tracking_id: generateTrackingID(),
+          tracking_id: tracking_id,
         };
 
         console.log("Proceeding to payment:", parcelData);
@@ -220,19 +223,25 @@ const SendParcel = () => {
         // PAYMENT WILL GO HERE
         // --------------------------------
 
-        axiosSecure.post("/parcels", parcelData).then((res) => {
+        axiosSecure.post("/parcels", parcelData).then(async (res) => {
           console.log(res.data);
           if (res.data.insertedId) {
-           
             Swal.fire({
               title: "Redirecting....",
               text: "Proceeding to payment gateway.",
               icon: "success",
               timer: 1500,
               showConfirmButton: false,
-            });
-             // TODO: Redirect to a payment page
-             navigate('/dashboard/myParcels')
+            })
+         
+            await logTracking({
+              tracking_id: parcelData.tracking_id,
+              status: "Parcel_created",
+              details: `created by ${user.name}`,
+              location: parcelData.senderDistrict || "",
+              updated_by : user.email
+            })
+            navigate('/dashboard/myParcels')
           }
         });
 
@@ -245,7 +254,6 @@ const SendParcel = () => {
       }
     });
   };
-
 
   return (
     <div className="my-15 bg-lime-50 px-10 py-10 rounded-2xl">
@@ -319,19 +327,19 @@ const SendParcel = () => {
               type="text"
               {...register("senderEmail")}
               defaultValue={user?.email}
-               className="input w-full bg-white border-black"
+              className="input w-full bg-white border-black"
               placeholder="Sender Email"
             />
 
             {/* sender region */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend text-black">Sender Regions</legend>
+              <legend className="fieldset-legend text-black">
+                Sender Regions
+              </legend>
               <select
                 {...register("senderRegion")}
                 defaultValue="Pick a region"
                 className="select bg-white border-black"
-             
-                
               >
                 <option disabled={true}>Pick a region</option>
                 {uniqueRegions.map((region) => (
@@ -344,12 +352,13 @@ const SendParcel = () => {
 
             {/* sender districts */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend text-black">Sender Districts</legend>
+              <legend className="fieldset-legend text-black">
+                Sender Districts
+              </legend>
               <select
                 {...register("senderDistrict")}
                 defaultValue="Pick a district"
                 className="select bg-white border-black"
-               
               >
                 <option disabled={true}>Pick a district</option>
                 {getDistrictsByRegion(senderRegion).map((district) => (
@@ -386,13 +395,15 @@ const SendParcel = () => {
             <input
               type="text"
               {...register("receiverEmail")}
-                   className="input w-full bg-white border-black"
+              className="input w-full bg-white border-black"
               placeholder="Receiver Email"
             />
 
             {/* receiver region */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend text-black">Receiver Regions</legend>
+              <legend className="fieldset-legend text-black">
+                Receiver Regions
+              </legend>
               <select
                 {...register("receiverRegion")}
                 defaultValue="Pick a region"
@@ -409,12 +420,13 @@ const SendParcel = () => {
 
             {/* receiver district */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend text-black">Receiver District</legend>
+              <legend className="fieldset-legend text-black">
+                Receiver District
+              </legend>
               <select
                 {...register("receiverDistrict")}
                 defaultValue="Pick a district"
                 className="select bg-white border-black"
-                
               >
                 <option disabled={true}>Pick a district</option>
                 {getDistrictsByRegion(receiverRegion).map((district) => (

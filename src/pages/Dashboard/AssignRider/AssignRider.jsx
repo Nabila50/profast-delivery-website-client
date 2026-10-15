@@ -4,15 +4,19 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 import { FaArrowUp } from "react-icons/fa";
 import BackToTop from "../../shared/BackToTop/BackToTopBtn";
+import useTrackingLogger from "../../../hooks/useTrackingLogger";
+import useAuth from "../../../hooks/useAuth";
 
 const AssignRider = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-
   const [selectedParcel, setSelectedParcel] = useState(null);
+  const [selectedRider, setSelectedRider] = useState(null);
   const [riders, setRiders] = useState([]);
   const [loadingRiders, setLoadingRiders] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { logTracking } = useTrackingLogger();
+  const { user} = useAuth();
 
   // Load parcels
   const {
@@ -31,6 +35,7 @@ const AssignRider = () => {
 
   const { mutateAsync: assignRider } = useMutation({
     mutationFn: async ({ parcelId, rider }) => {
+      setSelectedRider(rider);
       const res = await axiosSecure.patch(`/parcels/${parcelId}/assign`, {
         riderId: rider._id,
         riderEmail: rider.email,
@@ -40,11 +45,21 @@ const AssignRider = () => {
       return res.data;
     },
 
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({
         queryKey: ["assign-rider-parcels"],
       });
       Swal.fire("Success", "Rider assigned successfully!", "success");
+
+      // track rider assign
+
+      await logTracking({
+        tracking_id: selectedParcel.tracking_id,
+        status: "rider_assigned",
+        details: `Assigned to ${setSelectedRider.name}`,
+        updated_by: user.email
+      });
+
       document.getElementById("assignModal").close();
     },
   });
@@ -57,7 +72,8 @@ const AssignRider = () => {
     setLoadingRiders(true);
 
     // Your parcel service center
-    const district = parcel.serviceCenter || parcel.senderCenter;
+    const district =
+      parcel.senderDistrict || parcel.senderCenter || parcel.serviceCenter;
 
     try {
       const res = await axiosSecure.get("/riders/eligible", {
@@ -271,7 +287,7 @@ const AssignRider = () => {
                 <div>
                   <span className="text-gray-500">Parcel:</span>{" "}
                   <span className="font-medium">
-                    {selectedParcel.parcelTitle}
+                    {selectedParcel.parcelTitle} {selectedParcel.parcelName}
                   </span>
                 </div>
 
@@ -286,7 +302,8 @@ const AssignRider = () => {
                   <span className="text-gray-500">Service Center:</span>{" "}
                   <span className="font-medium">
                     {selectedParcel.serviceCenter ||
-                      selectedParcel.senderCenter}
+                      selectedParcel.senderCenter ||
+                      selectedParcel.senderDistrict}
                   </span>
                 </div>
 
@@ -341,7 +358,7 @@ const AssignRider = () => {
 
                           <td>{rider.phone}</td>
 
-                          <td>{rider.district}</td>
+                          <td>{rider.region}</td>
 
                           <td>{rider.bikeBrand}</td>
 
@@ -375,8 +392,6 @@ const AssignRider = () => {
           </div>
         </dialog>
       )}
-
-
     </div>
   );
 };
