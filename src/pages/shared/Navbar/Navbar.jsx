@@ -77,10 +77,10 @@ export default function Navbar() {
           <button onClick={handleLogOut} className="btn btn-primary text-black">Log Out</button>
         ) : (
           <>
-            <Link to="/login" className="btn btn-primary text-black">
+            <Link to="/login" className="btn btn-primary text-black border-0">
               LogIn
             </Link>
-            <Link to="/register" className="btn btn-primary text-black">
+            <Link to="/register" className="btn btn-primary text-black border-0">
               Register
             </Link>
           </>

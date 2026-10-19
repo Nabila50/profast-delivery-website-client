@@ -15,7 +15,7 @@ const OurServices = () => {
       <div className="max-w-7xl mx-auto px-5">
         {/* Heading */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="text-4xl font-bold mb-5 text-primary">
+          <h2 className="text-4xl font-bold mb-5 text-[#CAEB66]">
             Our Services
           </h2>
 
